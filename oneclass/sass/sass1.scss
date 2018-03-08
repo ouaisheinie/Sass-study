@@ -1,16 +1,16 @@
-//SCSS
-$color: orange !default; //定义全局变量(在选择器、函数、混合宏...的外面定义的变量为全局变量)
-.block {
-    color: $color; //调用全局变量
+%mt5{
+    margin-top:5px;
 }
-
-em {
-    $color: red; //定义局部变量
-    a {
-        color: $color; //调用局部变量
+%pt5{
+    padding-top:5px;
+}
+.btn{
+    @extend %mt5;
+    @extend %pt5;
+}
+.block{
+    @extend %mt5;
+    span{
+        @extend %pt5;
     }
-}
-
-span {
-    color: $color; //调用全局变量
 }

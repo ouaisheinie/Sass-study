@@ -228,3 +228,203 @@
                 @include prefixer(box-shadow,$shadow);
             }
         }
+        这是一个box-shadow的混合宏，带有多个参数，这个时候可以使用"..."来代替。简单的解释一下，当$shadow的参数数值大于或者等于1的时候，表示有多个阴影值，反之调用默认的参数值"0 0 4px rgba(0,0,0,.3)"
+        注意:复杂的混合宏钟的逻辑关系(@if...@else)后面的小节会有讲解
+
+15.sass混合宏-调用混合宏
+    1.在Sass钟通过@mixin关键词声明了一个混合宏，那么在实际调用钟，其匹配了一个关键词"@include"来调用声明好的混合宏(如上面第14点里的);例如在你的样式中定义了一个圆角的混合宏"border-radius":
+    @mixin border-radius{
+        -webkit-border-radius:3px;
+        border-radius:3px;
+    }
+    在一个按钮中药调用定义好的混合宏"border-radius",可以这样使用:
+    button{
+        @include border-radius;
+    }
+    这个时候编译出来的CSS就是如下
+    button{
+        -webkit-border-radius:3px;
+        border-radius:3px;
+    }
+
+16.混合宏的参数--传一个不带值的参数
+    1.Sass的混合宏有一个极其强大的功能，可以传参数，那么在Sass钟传参数主要有一下几种情形:
+        1.传一个不带值的参数
+            在混合宏中，可以传一个不带任何值的参数，比如：
+            @mixin border-radius($radius){
+                -webkit-border-radius:$radius;
+                border-radius:$radius;
+            }
+            在混合宏"border-radius"中定义了一个不带任何值的参数"$radius"。
+            在调用的时候可以给这个混合宏传一个参数值:
+            .box{
+                @include border-radius(3px);   //调用的时候给参数定值,haha
+            }
+            这里表示给混合混传递了一个 "border-radius"的值为 "3px".
+            所以 编译出来的CSS 如下
+            .box{
+                -webkit-border-radius:3px;
+                border-radius:3px;
+            }
+    2.传递一个带值的参数
+        1.在Sass的混合宏钟，还可以给混合宏的参数传一个默认值，例如:
+        @mixin border-radius($radius:3px){   //此处仅仅只是默认值  需要其他值 可以调用的时候给出
+            -webkit-border-radius:$radius;
+            border-radius:$radius;
+        }
+        在混合宏"border-radius"传了一个参数"$radius"，而且给这个参数赋予了一个默认值"3px".
+        在调用类似这样的混合宏时，会多有一个机会，假设你的页面中的圆角很多地方都是3px的圆角，那么这个时候需要调用默认混合宏"border-radius"：
+        .btn{
+            @include border-radius;
+        }
+        编译出来的CSS
+        .btn{
+            -webkit-border-radius:3px;
+            border-radius:3px;
+        }
+        但是有的时候，页面中有些元素的圆角值不一样，那么可以随机给混合宏传值，如:
+        .box{
+            @include border-radius(50%);//在调用的时候给出其他值
+        }
+        编译出来的CSS
+        .box{
+            -webkit-border-radius:50%;
+            border-radius:50%;
+        }
+
+    3.传递多个参数
+        1.Sass混合宏除了能传一个参数之外，还可以传递多个参数，如:
+        @mixin center($width,$height){   //混合宏center  传递了多个参数(2个极以上)
+            width:$width;
+            height:$height;
+            position:absolute;
+            top:50%;
+            left:50%;
+            margin-top:-($height)/2;
+            margin-left:-($width)/2;
+        }
+        实际调用和其他混合宏是一样的
+        .box-center{
+            @include center(500px,300px);
+        }
+
+        2.有一个特别的参数"..."。 当混合宏传的参数过多时，可以使用这个"..."来代替，例如
+        @mixin box-shadow($shadow...){   //"..."参数
+            @if length($shadow) >= 1{
+                -webkit-box-shadow:$shadows;
+                box-shadow:$shadows;
+            } @else {
+                $shadow: 0 0 2px rgba(#000,.25);
+                -webkit-box-shadow:$shadow;
+                box-shadow:$shadow;
+            }
+        }
+        接下来是调用:
+        .box{
+            @include box-shadow(0 0 1px rgba(#000,.5),0 0 2px rgba(#000,.2));
+        }
+        编译出来的CSS：
+        .box{
+            -webkit-box-shadow:0 0 1px rgba(0,0,0,0.5),0 0 2px rgba(0,0,0,0.2);
+            box-shadow:0 0 1px rgba(0,0,0,0.5),0 0 2px rgba(0,0,0,0.2);
+        }
+
+17.混合宏的参数--混合宏的不足
+    1.混合宏在实际编码中给我们带来了很多方便之处，特别是对于复用重复代码块。但其最大的不足之处是会生成冗余的代码块。比如在不同的地方调用一个相同的混合宏时。如:
+    @mixin border-radius{
+        -webkit-border-radius:3px;
+        border-radius:3px;
+    }
+    .box{
+        @include border-radius;
+        margin-bottom:5px;
+    }
+    .btn{
+        @include border-radius;
+    }
+    编译出来的CSS如下
+    .box{
+        -webkit-border-radius:3px;
+        border-radius:3px;
+        margin-bottom:5px;
+    }
+    .btn{
+        -webkit-border-radius:3px;
+        border-radius:3px;
+    }
+    从以上可以看出 Sass在调用相同的混合宏时，并不能智能地将相同的样式的代码块合并到一起。这也是Sass的混合宏最不足之处
+
+18.Sass的扩展和继承
+    1.在Sass中也有继承依说，也是继承类中的样式代码块。在Sass中是通过关键词"@extend"来继承已经存在的类样式块，从而实现代码的继承，如下所示:
+    //scss
+    .btn{
+        border:1px solid #ccc;
+        padding:6px 10px;
+        font-size:14px;
+    }
+    .btn-primary{
+        background-color:#f36;
+        color:#fff;
+        @extend .btn;
+    }
+    .btn-second{
+        background-color:orange;
+        color:#fff;
+        @extend .btn;
+    }
+    //编译出来之后 CSS
+    .btn,.btn-primary,.btn-second{
+        border:1px solid #ccc;
+        padding:6px 10px;
+        font-size:14px;
+    }
+    .btn-primary{
+        background-color:#f36;
+        color:#fff;
+    }
+    .btn-second{
+        background-color:orange;
+        color:#fff;
+    }
+    从代码中可以看出，在Sass中的继承，可以继承类样式块中所有样式代码，而且编译出来的CSS会将选择器合并在一起，形成组合选择器:
+    .btn,.btn-primary,.btn-second{
+        border:1px solid #ccc;
+        padding:6px 10px;
+        font-size:14px;
+    }
+    
+19.Sass占位符 %placeholder
+    Sass中的占位符 %placeholder功能是一个强大的，很实用的工程。它可以取代以前CSS中的基类造成的代码冗余的情形，因为%placeholder声明的代码，如果不被@extend调用的话，不会产生任何代码，来看一下:
+
+    %mt5{
+        margin-top:5px;
+    }
+    %pt5{
+        padding-top:5px;
+    }
+    这段代码没有被@extend调用，其并没有产生任何代码块，只是静静地躺在你的某个SCSS文件中，只有通过@extend调用才会有代码产生：
+    //scss
+    %mt5{
+        margin-top:5px;
+    }
+    %pt5{
+        padding-top:5px;
+    }
+    .btn{
+        @extend %mt5;
+        @extend %pt5;
+    }
+    .block{
+        @extend %mt5;
+
+        span{
+            @extend %pt5;
+        }
+    }
+    编译出来的CSS
+    .btn,.block{
+        margin-top:5px;
+    }
+    .btn,.block span{
+        padding-top:5px;
+    }

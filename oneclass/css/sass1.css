@@ -1,12 +1,8 @@
-.block {
-  color: orange;
+.btn, .block {
+  margin-top: 5px;
 }
 
-em a {
-  color: red;
-}
-
-span {
-  color: orange;
+.btn, .block span {
+  padding-top: 5px;
 }
 /*# sourceMappingURL=sass1.css.map */
