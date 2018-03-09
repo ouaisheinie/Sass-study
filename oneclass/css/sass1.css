@@ -1,8 +1,4 @@
-.btn, .block {
-  margin-top: 5px;
-}
-
-.btn, .block span {
-  padding-top: 5px;
+.col {
+  width: 96px;
 }
 /*# sourceMappingURL=sass1.css.map */
